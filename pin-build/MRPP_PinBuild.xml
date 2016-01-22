@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE build-type SYSTEM "../../../project-config.dtd">
+
+<build-type>
+  <name>Pin Build</name>
+  <description />
+  <settings>
+    <parameters>
+      <param name="system.username" value="" spec="text description='Username of a user who performs action' display='normal' label='Username:' validationMode='not_empty'" />
+      <param name="system.password" value="" spec="password description='Password of a user who performs action' display='normal' label='Password:'" />
+      <param name="mrpp.pinBuild.buildLocator" value="" spec="text description='Using a locator in build-related requests, with prefix id: or number:' display='normal' label='Build locator:' validationMode='not_empty'" />
+      <param name="mrpp.pinBuild.action" value="Pin" spec="text description='Action to perform' display='normal' label='Action:' validationMode='not_empty'" />
+      <param name="mrpp.pinBuild.comment" value="" spec="text description='a comment for the action' display='normal' label='Comment:' " />
+     
+    </parameters>
+    <build-runners>
+      <runner name="PinBuild" type="Ant">
+        <parameters>
+          <param name="build-file">&lt;project name="Pin build"&gt;
+
+&lt;taskdef name="http" classname="org.missinglink.ant.task.http.HttpClientTask"/&gt;
+
+&lt;target name="actionPinBuild" depends=""&gt;
+&lt;http url="%teamcity.serverUrl%/httpAuth/app/rest/builds/%mrpp.pinBuild.buildLocator%/pin" 
+      method="PUT" 
+      expected="204"
+      printrequest="true"
+      printresponse="true"&gt;
+&lt;headers&gt;
+&lt;header name="Content-Type" value="text/plain"/&gt;
+&lt;/headers&gt;
+&lt;credentials username="${username}" password="${password}"/&gt;
+&lt;entity&gt;%mrpp.pinBuild.comment%&lt;/entity&gt;
+&lt;/http&gt;
+&lt;/target&gt;
+
+&lt;target name="actionUnpinBuild" depends=""&gt;
+&lt;http url="%teamcity.serverUrl%/httpAuth/app/rest/builds/%mrpp.pinBuild.buildLocator%/pin" 
+      method="DELETE" 
+      expected="204"
+      printrequest="true"&gt;
+&lt;credentials username="${username}" password="${password}"/&gt;
+&lt;/http&gt;
+&lt;/target&gt;
+
+&lt;/project&gt;</param>
+          <param name="build-file-path" value="build.xml" />
+          <param name="target" value="action%mrpp.pinBuild.action%Build" />
+          <param name="runnerArgs" value="-lib %teamcity.tool.ant-net-tasks%" />
+          <param name="teamcity.coverage.emma.include.source" value="true" />
+          <param name="teamcity.coverage.emma.instr.parameters" value="-ix -*Test*" />
+          <param name="teamcity.coverage.idea.includePatterns" value="*" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use-custom-build-file" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings checkout-mode="ON_SERVER" labeling-type="NONE" labeling-pattern="build-%system.build.number%" />
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+
